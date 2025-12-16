@@ -12,6 +12,7 @@ import Category from "./pages/ExpenseCategory";
 import Type from "./pages/IncomeType";
 import PaymentMethod from "./pages/PaymentMethod";
 import Expense from "./pages/Transaction";
+import CategoryBudget from "./pages/CategoryBudget";
 import MainLayout from "./pages/MainLayout";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,6 +36,7 @@ function App() {
           <Route path="/expense_category" element={<Category />} />
           <Route path="/payment_method" element={<PaymentMethod />} />
           <Route path="/transaction" element={<Expense />} />
+          <Route path="/category_budget" element={<CategoryBudget />} />
           <Route path="/permission-denied" element={<PermissionDenied />} />
         </Route>
 

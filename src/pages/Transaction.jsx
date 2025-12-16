@@ -230,6 +230,7 @@ export default function Transaction() {
 
                 <input
                     type="number"
+                    min="1"
                     required
                     placeholder="Amount"
                     className="border border-gray-300 rounded-lg px-4 py-2"
