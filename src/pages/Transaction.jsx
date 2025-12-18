@@ -135,6 +135,25 @@ export default function Transaction() {
         setEditingId(null);
     };
 
+    //  Calculator
+
+    const appendValue = (val) => {
+        setForm({ ...form, amount: `${form.amount}${val}` });
+    };
+
+    const clearAmount = () => {
+        setForm({ ...form, amount: "" });
+    };
+
+    const calculateAmount = () => {
+        try {
+            const result = Function(`"use strict"; return (${form.amount})`)();
+            setForm({ ...form, amount: result });
+        } catch {
+            alert("Invalid calculation");
+        }
+    };
+
     return (
         <div className="container px-4 py-8">
 
@@ -228,15 +247,56 @@ export default function Transaction() {
 
                 {/* Amount */}
 
-                <input
-                    type="number"
-                    min="1"
-                    required
-                    placeholder="Amount"
-                    className="border border-gray-300 rounded-lg px-4 py-2"
-                    value={form.amount}
-                    onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                />
+                <div className="flex flex-col gap-2">
+                    <input
+                        type="number"
+                        min="1"
+                        required
+                        placeholder="Amount"
+                        className="border border-gray-300 rounded-lg px-4 py-2 text-md font-semibold"
+                        value={form.amount}
+                        onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                    />
+
+                    {/* Calculator Buttons */}
+
+                    <div className="grid grid-cols-4 gap-2">
+                        {[1, 2, 3].map(n => (
+                            <button
+                                key={n}
+                                type="button"
+                                onClick={() => appendValue(n)}
+                                className="calc-btn py-2 bg-gray-100 rounded-lg hover:bg-blue-400 font-bold text-md"
+                            >{n}</button>
+                        ))}
+                        <button type="button" onClick={() => appendValue("+")} className="calc-op py-2 bg-orange-400 rounded-lg hover:bg-blue-400 font-bold text-md">+</button>
+
+                        {[4, 5, 6].map(n => (
+                            <button
+                                key={n}
+                                type="button"
+                                onClick={() => appendValue(n)}
+                                className="calc-btn py-2 bg-gray-100 rounded-lg hover:bg-blue-400 font-bold text-md"
+                            >{n}</button>
+                        ))}
+                        <button type="button" onClick={() => appendValue("-")} className="calc-op py-2 bg-orange-400 rounded-lg hover:bg-blue-400 font-bold text-md">−</button>
+
+                        {[7, 8, 9].map(n => (
+                            <button
+                                key={n}
+                                type="button"
+                                onClick={() => appendValue(n)}
+                                className="calc-btn py-2 bg-gray-100 rounded-lg hover:bg-blue-400 font-bold text-md"
+                            >{n}</button>
+                        ))}
+                        <button type="button" onClick={() => appendValue("*")} className="calc-op py-2 bg-orange-400 rounded-lg hover:bg-blue-400 font-bold text-md">×</button>
+
+                        <button type="button" onClick={clearAmount} className="calc-clear py-2 bg-red-500 rounded-lg hover:bg-blue-400 font-bold text-md">C</button>
+                        <button type="button" onClick={() => appendValue(0)} className="calc-btn py-2 bg-gray-100 rounded-lg hover:bg-blue-400 font-bold text-md">0</button>
+                        <button type="button" onClick={calculateAmount} className="calc-eq py-2 bg-green-500 rounded-lg hover:bg-blue-400 font-bold text-md">=</button>
+                        <button type="button" onClick={() => appendValue("/")} className="calc-op py-2 bg-orange-400 rounded-lg hover:bg-blue-400 font-bold text-md">÷</button>
+                    </div>
+                </div>
 
                 {/* Description */}
 
