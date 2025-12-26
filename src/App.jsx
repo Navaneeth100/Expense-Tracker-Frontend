@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import MenuList from "./pages/MenuList";
 import Category from "./pages/ExpenseCategory";
+import SubCategory from "./pages/ExpenseSubCategory";
 import Type from "./pages/IncomeType";
 import PaymentMethod from "./pages/PaymentMethod";
 import Expense from "./pages/Transaction";
@@ -23,7 +24,7 @@ function App() {
     <>
       <Routes>
 
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/dashboard" />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -34,6 +35,7 @@ function App() {
           <Route path="/menu_list" element={<MenuList />} />
           <Route path="/Income_type" element={<Type />} />
           <Route path="/expense_category" element={<Category />} />
+          <Route path="/expense_sub_category" element={<SubCategory />} />
           <Route path="/payment_method" element={<PaymentMethod />} />
           <Route path="/transaction" element={<Expense />} />
           <Route path="/category_budget" element={<CategoryBudget />} />

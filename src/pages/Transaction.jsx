@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { toast } from 'react-toastify';
 import { url } from "../../mainurl";
 
 export default function Transaction() {
     const [transactions, setTransactions] = useState([]);
     const [categories, setCategories] = useState([]);
+    const [subcategories, setSubCategories] = useState([]);
     const [incometypes, setIncometypes] = useState([]);
     const [paymentMethods, setPaymentMethods] = useState([]);
 
@@ -16,6 +18,7 @@ export default function Transaction() {
         transaction: "",
         income_type: "",
         category: "",
+        subcategory: "",
         amount: "",
         date: new Date().toISOString().split("T")[0],
         payment_method: "",
@@ -59,6 +62,19 @@ export default function Transaction() {
         }
     };
 
+    const fetchSubCategories = async (id) => {
+        try {
+            const res = await axios.get(`${url}/api/sub-categories/${id}/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setSubCategories(res.data?.results || res.data);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     // CREATE or UPDATE
 
     const handleSubmit = async (e) => {
@@ -68,6 +84,7 @@ export default function Transaction() {
             transaction_type: form.transaction,
             income_type: form.income_type,
             category: form.category,
+            subcategory: form.subcategory,
             amount: parseFloat(form.amount),
             date: form.date,
             payment_method: form.payment_method,
@@ -81,12 +98,14 @@ export default function Transaction() {
                     payload,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                toast.success("Transaction updated successfully!");
             } else {
                 await axios.post(
                     `${url}/api/expense/`,
                     payload,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+                toast.success("Transaction added successfully!");
             }
 
             resetForm();
@@ -94,15 +113,20 @@ export default function Transaction() {
 
         } catch (err) {
             console.error(err);
+            toast.error(err.response?.data?.error || "Something went wrong!");
         }
     };
 
     const handleEdit = (exp) => {
         setEditingId(exp.id);
+        if (exp?.category_data?.id) {
+            fetchSubCategories(exp.category_data.id);
+        }
         setForm({
             transaction: exp.transaction_type,
             income_type: exp?.income_type_data?.id,
             category: exp?.category_data?.id,
+            subcategory: exp?.subcategory_data?.id || "",
             amount: exp.amount,
             date: exp.date,
             payment_method: exp?.payment_method_data?.id,
@@ -117,6 +141,7 @@ export default function Transaction() {
             await axios.delete(`${url}/api/expense/${id}/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            toast.success("Transaction deleted successfully!");
 
             fetchData();
         } catch (err) {
@@ -127,6 +152,7 @@ export default function Transaction() {
     const resetForm = () => {
         setForm({
             category: "",
+            subcategory: "",
             amount: "",
             date: "",
             payment_method: "",
@@ -208,10 +234,28 @@ export default function Transaction() {
                         required
                         className="border border-gray-300 rounded-lg px-4 py-2"
                         value={form.category}
-                        onChange={(e) => setForm({ ...form, category: e.target.value })}
+                        onChange={(e) => { fetchSubCategories(e.target.value), setForm({ ...form, category: e.target.value, subcategory: "" })}}
                     >
                         <option value="" disabled >Select Expense Category</option>
                         {categories.map((cat) => (
+                            <option key={cat.id} value={cat.id}>
+                                {cat.name}
+                            </option>
+                        ))}
+                    </select>
+                </>}
+
+                {/* Expense Sub Category */}
+
+                {(form.transaction == "Expense" && form.category != "") && <>
+                    <select
+                        required
+                        className="border border-gray-300 rounded-lg px-4 py-2"
+                        value={form.subcategory}
+                        onChange={(e) => setForm({ ...form, subcategory: e.target.value })}
+                    >
+                        <option value="" disabled >Select Expense Sub Category</option>
+                        {subcategories.map((cat) => (
                             <option key={cat.id} value={cat.id}>
                                 {cat.name}
                             </option>
@@ -336,7 +380,7 @@ export default function Transaction() {
                         >
                             <div className="flex justify-between items-center">
 
-                                <h3 className="text-sm font-semibold">{exp.category_data?.name || exp.income_type_data?.name}</h3>
+                                <h3 className="text-sm font-semibold">{exp.category_data?.name || exp.income_type_data?.name} {exp.subcategory_data?.name && (<span className="text-xs text-gray-500">- {exp.subcategory_data.name}</span>)}</h3>
 
                                 <div className="flex gap-2">
                                     <button

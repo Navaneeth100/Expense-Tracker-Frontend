@@ -2,19 +2,16 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { url } from "../../mainurl";
 
-export default function ExpenseCategory() {
+export default function ExpenseSubCategory() {
     const [categories, setCategories] = useState([]);
+    const [subcategories, setsubCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const token = localStorage.getItem("access");
 
-    const [form, setForm] = useState({ name: "", icon: "" });
+    const [form, setForm] = useState({ category: "", name: "", icon: "" });
     const [editingId, setEditingId] = useState(null);
 
     const [search, setSearch] = useState("");
-
-    useEffect(() => {
-        fetchCategories();
-    }, []);
 
     const fetchCategories = async () => {
         try {
@@ -22,12 +19,28 @@ export default function ExpenseCategory() {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setCategories(res.data?.results || res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchSubCategories = async () => {
+        try {
+            const res = await axios.get(`${url}/api/sub-categories/`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            setsubCategories(res.data?.results || res.data);
         } catch (e) {
             console.error(e);
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchCategories();
+        fetchSubCategories();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -36,22 +49,22 @@ export default function ExpenseCategory() {
             if (editingId) {
                 // UPDATE
                 await axios.put(
-                    `${url}/api/categories/${editingId}/`,
+                    `${url}/api/sub-categories/${editingId}/`,
                     form,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             } else {
                 // CREATE
                 await axios.post(
-                    `${url}/api/categories/`,
+                    `${url}/api/sub-categories/`,
                     form,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
             }
 
-            setForm({ name: "", icon: "" });
+            setForm({ category: "",name: "", icon: "" });
             setEditingId(null);
-            fetchCategories();
+            fetchSubCategories();
         } catch (err) {
             console.error(err);
             toast.error(err.response?.data?.error);
@@ -60,17 +73,17 @@ export default function ExpenseCategory() {
 
     const handleEdit = (cat) => {
         setEditingId(cat.id);
-        setForm({ name: cat.name, icon: cat.icon });
+        setForm({ category: cat.category_data?.id, name: cat.name, icon: cat.icon });
     };
 
     const handleDelete = async (id) => {
         if (!window.confirm("Are you sure?")) return;
 
         try {
-            await axios.delete(`${url}/api/categories/${id}/`, {
+            await axios.delete(`${url}/api/sub-categories/${id}/`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            fetchCategories();
+            fetchSubCategories();
         } catch (e) {
             console.error(e);
         }
@@ -80,7 +93,7 @@ export default function ExpenseCategory() {
         <div className="container px-4 py-8">
             {/* HEADER */}
             <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-                <h2 className="text-2xl font-semibold text-gray-900">Expense Category</h2>
+                <h2 className="text-2xl font-semibold text-gray-900">Expense Sub Category</h2>
 
                 {/* <input
                     type="text"
@@ -94,12 +107,27 @@ export default function ExpenseCategory() {
             {/* FORM */}
             <form
                 onSubmit={handleSubmit}
-                className="p-5 mb-6 bg-white rounded-xl shadow border border-gray-200 flex flex-col sm:flex-row gap-4"
+                className="p-5 mb-6 bg-white rounded-xl shadow border border-gray-200 grid grid-cols-1 sm:grid-cols-3 gap-4"
             >
+
+                <select
+                    required
+                    className="border border-gray-300 rounded-lg px-4 py-2"
+                    value={form.category}
+                    onChange={(e) => setForm({ ...form, category: e.target.value })}
+                >
+                    <option value="" disabled >Select Expense Category</option>
+                    {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                            {cat.name}
+                        </option>
+                    ))}
+                </select>
+
                 <input
                     type="text"
                     required
-                    placeholder="Category Name"
+                    placeholder="Sub Category Name"
                     className="border border-gray-300 rounded-lg px-4 py-2 flex-1"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -116,7 +144,7 @@ export default function ExpenseCategory() {
 
                 <button
                     type="submit"
-                    className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700"
+                    className="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700 col-span-1 sm:col-span-3"
                 >
                     {editingId ? "Update" : "Add"}
                 </button>
@@ -134,9 +162,9 @@ export default function ExpenseCategory() {
 
             {!loading && (
                 <>
-                    {categories?.length ? (
+                    {subcategories?.length ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {categories
+                            {subcategories
                                 .filter((c) =>
                                     c.name.toLowerCase().includes(search.toLowerCase())
                                 )
@@ -168,12 +196,13 @@ export default function ExpenseCategory() {
                                         </div>
 
                                         <h3 className="text-lg mt-3 font-semibold text-gray-900">{cat.name}</h3>
+                                        <p className="mt-1 text-sm text-gray-600">{cat.category_data?.name}</p>
                                     </div>
                                 ))}
                         </div>
                     ) : (
                         <div className="flex justify-center items-center min-h-[40vh]">
-                            <p className="text-gray-600 text-lg">No Categories found</p>
+                            <p className="text-gray-600 text-lg">No Sub Categories found</p>
                         </div>
                     )}
                 </>

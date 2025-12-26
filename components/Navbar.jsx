@@ -25,7 +25,7 @@ const Navbar = () => {
 
         {/* Logo */}
 
-        <Link to="/" className="flex items-center gap-2 text-decoration-none">
+        <Link to="/dashboard" className="flex items-center gap-2 text-decoration-none">
           <img
             src={Logo}
             alt="Logo"
@@ -40,7 +40,7 @@ const Navbar = () => {
           <>
             <button
               onClick={handleLogout}
-              className="px-4 py-2 rounded-lg bg-black-700 text-white font-medium shadow-sm hover:bg-red-600 transition text-decoration-none"
+              className="px-4 py-2 rounded-lg bg-blue-600 text-white font-medium shadow-sm hover:bg-red-600 transition text-decoration-none"
             >
               Logout
             </button>
