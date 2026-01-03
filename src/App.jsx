@@ -29,7 +29,15 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        <Route element={<MainLayout />}>
+        
+        {/* Protected Layout */}
+
+          <Route element={
+              <ProtectedRoute>
+                  <MainLayout />
+              </ProtectedRoute>
+          }>
+
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/users" element={<Users />} />
           <Route path="/menu_list" element={<MenuList />} />
